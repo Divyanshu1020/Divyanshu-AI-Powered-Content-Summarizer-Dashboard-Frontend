@@ -36,12 +36,6 @@ function App() {
     setUser(null);
   };
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('username');
-    if (savedUser) {
-      setUser(savedUser);
-    }
-  }, []);
 
   const exportToText = () => {
     const element = document.createElement('a');
