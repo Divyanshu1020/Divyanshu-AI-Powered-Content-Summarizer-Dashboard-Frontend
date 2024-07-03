@@ -39,7 +39,6 @@ export default function Auth({ setUser }) {
     const login = (e) => {
         e.preventDefault();
         const users = JSON.parse(localStorage.getItem('users'));
-        console.log(users);
         const user = users.find(user => user.username === username && user.password === password);
 
         if (user) {

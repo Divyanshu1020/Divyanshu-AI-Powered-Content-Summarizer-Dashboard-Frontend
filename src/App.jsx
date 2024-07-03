@@ -10,7 +10,7 @@ import {
 import axios from 'axios';
 import { htmlToText } from 'html-to-text';
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './App.css';
 import { mockSummarizeAPI } from './api/api.config';
 import Auth from "./components/Auth";
@@ -18,21 +18,19 @@ import Navbar from "./components/Navbar";
 import { Input } from './components/ui/input';
 import { Textarea } from './components/ui/textarea';
 import jsPDF from "jspdf";
+import { buildHistory } from "./helper/buildHistory";
+import { DateTime } from "luxon";
 function App() {
   const [inputText, setInputText] = useState('');
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [summaryLength, setSummaryLength] = useState('short');
   const [summary, setSummary] = useState('');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState('');
   const inputTextRef = useRef(null)
-
-  console.log(summaryLength);
-
 
 
   const logout = () => {
-    localStorage.removeItem('username');
     setUser(null);
   };
 
@@ -57,7 +55,7 @@ function App() {
     try {
       const response = await mockSummarizeAPI(inputText, summaryLength)
       setSummary(response);
-      console.log(response);
+      buildHistory({ timestamp: DateTime.now().toFormat("cccc, dd LLL yyyy' | 'HH:mm a"), title: response }, user)
 
     } catch (error) {
       console.error("Error generating summary: ", error);
@@ -97,8 +95,9 @@ function App() {
 
 
   return user ? (
-    <div>
-      <Navbar logout={logout} />
+    <div className="relative">
+      <p className=" absolute bottom-0 right-0">version: 1.0.0</p>
+      <Navbar logout={logout} user={user} />
       <div className=' p-1 sm:p-6'>
         <h1 className=' text-xl sm:text-4xl font-bold'>AI-Powered Content Summarizer Dashboard</h1>
       </div>
