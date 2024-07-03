@@ -96,7 +96,7 @@ function App() {
 
   return user ? (
     <div className="relative">
-      <p className=" absolute bottom-0 right-0">version: 1.0.0</p>
+      <p className=" absolute bottom-0 right-0">version: 0.1.1</p>
       <Navbar logout={logout} user={user} />
       <div className=' p-1 sm:p-6'>
         <h1 className=' text-xl sm:text-4xl font-bold'>AI-Powered Content Summarizer Dashboard</h1>
