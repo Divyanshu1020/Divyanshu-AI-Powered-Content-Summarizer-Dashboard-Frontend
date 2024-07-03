@@ -1,8 +1,26 @@
-# React + Vite
+# AI Summarizer
+React-based dashboard that allows users to input long-form text content or scrape content from web pages and receive AI-generated summaries.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Screenshots 
+![image](https://github.com/Divyanshu1020/Divyanshu-AI-Powered-Content-Summarizer-Dashboard-Frontend/assets/97149795/75fcc416-7b45-4754-92fe-2f21a33a4fa7)
+![image](https://github.com/Divyanshu1020/Divyanshu-AI-Powered-Content-Summarizer-Dashboard-Frontend/assets/97149795/55ecf02d-9dcb-45a5-8402-edfc35fa1bda)
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+
+### Installation
+1. Clone the both repository:
+   ```bash
+   git clone https://github.com/Divyanshu1020/Divyanshu-AI-Powered-Content-Summarizer-Dashboard-Frontend.git
+   ```
+
+3. Install dependencies of front:
+   ```bash
+   npm install
+   ```
+
+## Usage
+1. Start the backend server:
+   ```bash
+   npm run div
+   ```
