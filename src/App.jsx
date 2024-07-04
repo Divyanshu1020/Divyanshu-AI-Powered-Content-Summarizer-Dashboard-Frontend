@@ -6,10 +6,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from "@/components/ui/select";
 import axios from 'axios';
+import cheerio from 'cheerio';
 import { htmlToText } from 'html-to-text';
+import jsPDF from "jspdf";
 import { Loader2 } from "lucide-react";
+import { DateTime } from "luxon";
 import React, { useRef, useState } from 'react';
 import './App.css';
 import { mockSummarizeAPI } from './api/api.config';
@@ -17,14 +22,14 @@ import Auth from "./components/Auth";
 import Navbar from "./components/Navbar";
 import { Input } from './components/ui/input';
 import { Textarea } from './components/ui/textarea';
-import jsPDF from "jspdf";
 import { buildHistory } from "./helper/buildHistory";
-import { DateTime } from "luxon";
 function App() {
   const [inputText, setInputText] = useState('');
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [scrapingloading, setScrapingLoading] = useState(false);
   const [summaryLength, setSummaryLength] = useState('short');
+  const [htmlElement, setHtmlElement] = useState(null);
   const [summary, setSummary] = useState('');
   const [user, setUser] = useState('');
   const inputTextRef = useRef(null)
@@ -65,9 +70,15 @@ function App() {
   };
 
   const scrapeContent = async () => {
+    setScrapingLoading(true)
+    if (!url) {
+      alert("Please enter a valid URL");
+      setScrapingLoading(false);
+      return;
+    }
     try {
 
-      const url = 'https://www.npmjs.com/package/cors-anywhere';
+
 
       const response = await axios.get(`https://cors-anywhere.herokuapp.com/${url}`, {
         headers: {
@@ -75,15 +86,18 @@ function App() {
         }
       });
       const html = response.data;
+      const $ = cheerio.load(html);
 
-      const textContent = htmlToText(html, {
+      const mainContent = htmlElement? $(`${htmlElement}`) : $('article, main, .main-content, .post, .entry-content').first();
+      const textContent = htmlToText(mainContent.html() || html, {
         wordwrap: 130,
         selectors: [{ selector: 'a', options: { ignoreHref: true } }]
       });
       inputTextRef.current.value = textContent;
     } catch (error) {
-      console.error("Error scraping content: ", error);
-      inputTextRef.current.value = error;
+      alert("Error in scraping content");
+    } finally {
+      setScrapingLoading(false)
     }
   };
 
@@ -102,7 +116,7 @@ function App() {
         <h1 className=' text-xl sm:text-4xl font-bold'>AI-Powered Content Summarizer Dashboard</h1>
       </div>
 
-      
+
 
       <div className=" flex flex-col  sm:flex-row gap-7">
 
@@ -113,7 +127,7 @@ function App() {
 
           <div className="my-2 text-start ">
             <Label className=" sm:text-lg" htmlFor="message-2">Your URL</Label>
-            <div className=" flex flex-row gap-3">
+            <div className=" relative flex flex-row gap-3">
               <Input
                 type="text"
                 placeholder="Paste URL here..."
@@ -122,6 +136,18 @@ function App() {
                 dir="auto"
                 className=" bg-gray-100  w-full"
               />
+              <Select className=" h-full" onValueChange={(value) => { setHtmlElement(value) }}>
+                <SelectTrigger className="w-1/5">
+                  <SelectValue placeholder="HTML Element" />
+                </SelectTrigger>
+                <SelectContent className=" max-h-[200px]">
+                  <SelectGroup>
+                    <SelectLabel>Element</SelectLabel>
+                    <SelectItem value="main">Main</SelectItem>
+                    <SelectItem value="article">Article</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <Button className=" h-9" onClick={scrapeContent}>Scrape</Button>
             </div>
           </div>
@@ -129,12 +155,19 @@ function App() {
 
 
 
-          <div className="">
+          <div className="relative">
             <Textarea
               className=" sm:text-xl sm:font-normal sm:min-h-[350px] sm:h-full resize-none bg-gray-100"
               row={40}
               ref={inputTextRef}
+              disabled={scrapingloading}
               placeholder="Paste or type your long-form content here..." />
+            {scrapingloading && (
+              <div className="w-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
+                <Loader2 height={40} width={40} className="mx-auto animate-spin" />
+                <p className="text-sm">Scraping...</p>
+              </div>
+            )}
 
           </div>
           <div className=" py-2 sm:py-7 flex flex-row items-center gap-4">
@@ -157,7 +190,7 @@ function App() {
           </div>
         </div>
 
-        
+
 
         <div className=" w-full h-full">
           <div className=" p-2 sm:p-3 ">
@@ -180,11 +213,11 @@ function App() {
             )}
           </div>
           <div className=" py-2 sm:py-7 flex flex-row items-center gap-4">
-            <Button  
+            <Button
               onClick={exportToText}
-              variant="outline" 
+              variant="outline"
               className=" w-1/2 h-9">Export as Text</Button>
-            <Button 
+            <Button
               onClick={exportToPDF}
               className="w-1/2 h-9">Export as PDF</Button>
           </div>
